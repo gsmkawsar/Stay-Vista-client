@@ -11,7 +11,7 @@ import RoomReservation from "../../components/RoomDetails/RoomReservation";
 const RoomDetails = () => {
     const { id } = useParams()
     const [room, setRoom] = useState({})
-    const [loading, setLoading] = useState(focus)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         setLoading(true)
@@ -22,7 +22,6 @@ const RoomDetails = () => {
                 setRoom(singleRoom)
                 setLoading(focus)
             })
-
 
     }, [id])
 
