@@ -20,7 +20,7 @@ const RoomDetails = () => {
             .then(data => {
                 const singleRoom = data.find(room => room._id === id)
                 setRoom(singleRoom)
-                setLoading(focus)
+                setLoading(false)
             })
 
     }, [id])

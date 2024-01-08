@@ -1,11 +1,14 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FcGoogle } from 'react-icons/fc'
 import { imageUpload } from '../../api/utils'
 import useAuth from '../../hooks/useAuth'
+import { getToken, saveUser } from '../../api/auth'
+import { toast } from 'react-hot-toast'
 
 const SignUp = () => {
 
-  const {createUser, updateUserProfile, signInWithGoogle} = useAuth()
+  const { createUser, updateUserProfile, signInWithGoogle } = useAuth()
+  const navigate = useNavigate()
 
   // form submit handel 
 
@@ -16,15 +19,35 @@ const SignUp = () => {
     const email = form.email.value;
     const password = form.password.value;
     const image = form.image.files[0];
-    const imageData = await imageUpload(image)
-
-console.log(imageData.data.display_url);
 
 
 
-    // console.log(formData);
-    // console.log({ name, email, password })
-    // console.log(image)
+    try {
+      //1. upload image
+      const imageData = await imageUpload(image)
+
+      //2. User registrar
+      const result = await createUser(email, password)
+      console.log(result);
+
+      // 3. save user name and photo
+      await updateUserProfile(name, imageData?.data.display_url)
+
+      //4. save user data in database
+      const dbResponse = await saveUser(result)
+
+      console.log(dbResponse);
+
+      //5. get token
+      await getToken(result?.user?.email)
+      navigate('/')
+      toast.success('SignUp Successfully')
+
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.message)
+    }
+
   }
 
 
