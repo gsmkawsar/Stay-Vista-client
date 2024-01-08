@@ -4,14 +4,14 @@ import { imageUpload } from '../../api/utils'
 import useAuth from '../../hooks/useAuth'
 import { getToken, saveUser } from '../../api/auth'
 import { toast } from 'react-hot-toast'
+import { TbFidgetSpinner } from "react-icons/tb";
 
 const SignUp = () => {
 
-  const { createUser, updateUserProfile, signInWithGoogle } = useAuth()
+  const { createUser, updateUserProfile, signInWithGoogle, loading } = useAuth()
   const navigate = useNavigate()
 
   // form submit handel 
-
   const handelSubmit = async event => {
     event.preventDefault()
     const form = event.target;
@@ -28,13 +28,13 @@ const SignUp = () => {
 
       //2. User registrar
       const result = await createUser(email, password)
-      console.log(result);
+      console.log('aaaaaaaaaaaaa', result);
 
       // 3. save user name and photo
       await updateUserProfile(name, imageData?.data.display_url)
 
       //4. save user data in database
-      const dbResponse = await saveUser(result)
+      const dbResponse = await saveUser(result?.user)
 
       console.log(dbResponse);
 
@@ -50,6 +50,33 @@ const SignUp = () => {
 
   }
 
+  // handel google singing
+  const handelGoogleSinging = async () => {
+
+    try {
+
+      //1. User registrar using google
+      const result = await signInWithGoogle()
+      console.log('aaaaaaaaaaaaa', result);
+
+      //2. save user data in database
+      const dbResponse = await saveUser(result?.user)
+
+      console.log(dbResponse);
+
+      //3. get token
+      await getToken(result?.user?.email)
+      navigate('/')
+      toast.success('SignUp Successfully')
+
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.message)
+    }
+
+
+
+  }
 
   return (
     <div className='flex justify-center items-center min-h-screen'>
@@ -127,18 +154,18 @@ const SignUp = () => {
               type='submit'
               className='bg-rose-500 w-full rounded-md py-3 text-white'
             >
-              Continue
+              {loading ? <TbFidgetSpinner className='animate-spin m-auto' /> : 'Continue'}
             </button>
           </div>
         </form>
         <div className='flex items-center pt-4 space-x-1'>
           <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
           <p className='px-3 text-sm dark:text-gray-400'>
-            Signup with social accounts
+            SignUp with social accounts
           </p>
           <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
         </div>
-        <div className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
+        <div onClick={handelGoogleSinging} className='flex justify-center items-center space-x-2 border m-3 p-2 border-gray-300 border-rounded cursor-pointer'>
           <FcGoogle size={32} />
 
           <p>Continue with Google</p>
